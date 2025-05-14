@@ -313,6 +313,23 @@ app.get('/full-analysis/:sessionId', (req, res) => {
   res.json({ ...fullResult, isPaid: true });
 });
 
+async function checkTochkaPaymentStatus(paymentId, accessToken) {
+  try {
+    const response = await axios.get(
+      `${TOCHKA_API_URL}/payment/status/${paymentId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      }
+    );
+    
+    return response.data.status;
+  } catch (error) {
+    console.error('Ошибка проверки статуса платежа:', error);
+    throw error;
+  }
+}
 
 app.get('/', (req, res) => res.sendFile(__dirname + '/PreDec.html'));
 app.listen(port, () => console.log(`Сервер запущен на порту ${port}`));
