@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Профессиональная оценка перспектив судебной апелляции с использованием AI">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Апелляционный помощник | Оценка шансов на успех</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        :root {
+            --primary: #4f46e5;
+            --secondary: #2563eb;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f0f0;
+            background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0L6 6M6 0L0 6' stroke='%23d0d0d0' stroke-opacity='0.2' stroke-width='1' fill='none' fill-rule='evenodd'/%3E%3C/svg%3E");
+            overflow-x: hidden;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #e0e0e0 0%, #c0c0c0 100%);
+        }
+
+        .section {
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                       opacity 0.6s ease;
+            will-change: transform, opacity;
+            transform: translateY(50px);
+            opacity: 0;
+        }
+
+        .section.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+        }
+
+        .testimonial-card {
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .animate-progress {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            transition: stroke-dashoffset 1.5s ease-out;
+        }
+		#cookie-consent {
+			box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+			z-index: 9999;
+		}
+
+		@media (max-width: 767px) {
+			#cookie-consent {
+				font-size: 0.875rem;
+			}
+		}
+		#scroll-cue {
+			pointer-events: none;
+			will-change: opacity, transform;
+		}
+
+		@keyframes scroll-pulse {
+			0% { transform: scale(1); opacity: 0.4; }
+			50% { transform: scale(1.8); opacity: 0; }
+			100% { transform: scale(1); opacity: 0.4; }
+		}
+
+		@keyframes scroll-dot {
+			0%, 100% { transform: translateY(0); }
+			50% { transform: translateY(8px); }
+		}
+
+		.animate-scroll-pulse {
+			animation: scroll-pulse 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+		}
+
+		.animate-scroll-dot {
+			animation: scroll-dot 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+		}
+		/* Оптимизация для мобильной шапки */
+		@media (max-width: 767px) {
+			#header {
+				padding: 8px 0;
+			}
+			
+			#header .container {
+				gap: 12px;
+			}
+			
+			#menu-toggle {
+				padding: 6px;
+				margin-left: 4px;
+			}
+			
+			#calculator-mobile-btn {
+				animation: pulse-icon 1.5s ease-in-out infinite;
+			}
+			
+			@keyframes pulse-icon {
+				0%, 100% { transform: scale(1); }
+				50% { transform: scale(1.1); }
+			}
+		}
+			
+		.nav-link {
+				font-size: 0.875rem;
+				padding: 0.5rem;
+			}
+		/* Стили для мобильного меню */
+		#mobile-menu {
+			display: block !important;
+			opacity: 0;
+			visibility: hidden;
+			transition: opacity 0.3s ease, visibility 0s 0.3s; /* Задержка для visibility */
+		}
+
+		#mobile-menu.active {
+			opacity: 1;
+			visibility: visible;
+			pointer-events: auto;
+			transition: opacity 0.3s ease, visibility 0s; /* Без задержки при открытии */
+		}
+
+		#mobile-menu > div:last-child {
+			transform: translateX(100%);
+			transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Плавная анимация */
+		}
+
+		#mobile-menu.active > div:last-child {
+			transform: translateX(0);
+		}
+        #result-circle {
+        transition: stroke-dashoffset 1.5s ease-out;
+        }
+		/* Оптимизация кнопки меню для мобильных */
+		@media (max-width: 767px) {
+			#header {
+				padding: 8px 0;
+			}
+			
+			#header .container {
+				gap: 12px;
+			}
+			
+			#menu-toggle {
+				padding: 6px;
+				margin-left: 4px;
+			}
+			
+			/* Пульсация для кнопки "Начать анализ" */
+			a[href="#calculator"] {
+				animation: pulse-icon 4.0s ease-in-out infinite;
+			}
+			
+			@keyframes pulse-icon {
+				0%, 100% { transform: scale(1); }
+				50% { transform: scale(1.1); }
+			}
+		}
+    </style>
+</head>
+<body class="relative">
+    <!-- Preloader -->
+    <div id="preloader" class="fixed inset-0 bg-white z-50 flex items-center justify-center transition-opacity duration-500">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white shadow-none fixed w-full top-0 z-40 transition-all duration-300" id="header">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <!-- Логотип -->
+        <img id="logo" src="/Logo_2.svg" alt="Апелляционный помощник" class="h-10 mr-3 cursor-pointer">
+        <!--  <div class="hidden md:flex items-center"> 
+           <h1 class="text-xl font-bold text-gray-800">
+                <span class="block">Апелляционный</span>
+                <span class="block ml-[4.3em] -mt-1">помощник</span>
+            </h1> 
+        </div>-->	
+        <!-- Навигация и лого партнера -->
+        <div class="flex items-center gap-6">
+            <nav class="hidden md:flex space-x-8" aria-label="Навигация">
+                <a href="#benefits" class="nav-link text-gray-600 hover:text-indigo-600 transition-colors">Преимущества</a>
+                <a href="#calculator" class="nav-link text-gray-600 hover:text-indigo-600 transition-colors">Проверка</a>
+                <a href="#faq" class="nav-link text-gray-600 hover:text-indigo-600 transition-colors">Вопросы и ответы</a>
+				<a href="#testimonials" class="nav-link text-gray-600 hover:text-indigo-600 transition-colors">Отзывы</a>
+            </nav>
+            
+            <!-- Логотип партнера -->
+            <a href="https://sk.ru/" target="_blank" class="hidden md:block opacity-80 hover:opacity-100 transition-opacity">
+                <img src="/Sk___.svg" alt="Партнер" class="h-8 w-auto">
+            </a>
+        </div>
+        <!-- Кнопка меню и анализа (всегда видна на мобильных) -->
+		<div class="flex items-center gap-3 md:hidden">
+			<a href="#calculator" 
+			   class="bg-indigo-600 text-white p-2.5 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
+			   aria-label="Начать анализ">
+				<i class="fas fa-calculator text-sm"></i>
+			</a>
+			<button id="menu-toggle" class="p-2 text-gray-600 hover:text-indigo-600">
+				<i class="fas fa-bars text-xl"></i>
+			</button>
+		</div>
+    </div>
+</header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="fixed inset-0 bg-black/50" id="menu-overlay"></div>
+    <div class="absolute right-0 top-0 h-full w-64 bg-white shadow-lg transform translate-x-full transition-transform duration-300">
+        <div class="p-4 flex justify-end">
+            <button id="close-menu" class="p-2 text-gray-600 hover:text-indigo-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <nav class="p-4 space-y-4">
+            <a href="#benefits" class="nav-link text-gray-600 hover:text-indigo-600 transition-colors">Преимущества</a>
+                <a href="#calculator" class="nav-link text-gray-600 hover:text-indigo-600 transition-colors">Проверка</a>
+                <a href="#faq" class="nav-link text-gray-600 hover:text-indigo-600 transition-colors">Вопросы и ответы</a>
+				<a href="#testimonials" class="nav-link text-gray-600 hover:text-indigo-600 transition-colors">Отзывы</a>
+        </nav>
+    </div>
+	</div>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="hero-gradient text-white pt-32 pb-16 section">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <h2 class="text-3xl md:text-5xl text-indigo-600 font-bold mb-6">Узнайте ваши шансы на успешную апелляцию</h2>
+            <div class="space-y-1 mb-8">
+                <p class="text-xl opacity-100">AI-анализ судебных решений с точностью до 90%</p>
+                <p class="text-lg md:text-xl opacity-90">с использованием актуального законодательства</p>
+				<p class="text-lg md:text-xl opacity-90">и практики решений судов по всей России</p>
+            </div>
+            <a href="#calculator" class="bg-white text-indigo-600 font-bold px-8 py-4 rounded-lg hover:bg-gray-100 transition duration-300 inline-block animate-pulse">
+                <i class="fas fa-calculator mr-2"></i> Начать анализ
+            </a>
+        </div>
+    </div>
+		</section>
+
+
+
+        <!-- Benefits Section -->
+        <section id="benefits" class="py-16 bg-white section">
+            <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Профессиональный подход к анализу</h2>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Карточка 1 -->
+            <div class="bg-white p-8 rounded-xl hover:shadow-md transition-all duration-300">
+                <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-6">
+                    <i class="fas fa-balance-scale text-2xl text-indigo-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Актуальная правовая база</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Нейросеть обучена на постоянно обновляемых датасетах, включающих последние изменения 
+                    законодательства РФ и текущие редакции нормативно-правовых актов
+                </p>
+            </div>
+
+            <!-- Карточка 2 -->
+            <div class="bg-white p-8 rounded-xl hover:shadow-md transition-all duration-300">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
+                    <i class="fas fa-landmark text-2xl text-blue-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Общероссийская судебная практика</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Анализ учитывает более 2 млн судебных решений из всех регионов страны, включая 
+                    практику Верховного Суда и федеральных округов
+                </p>
+            </div>
+
+            <!-- Карточка 3 -->
+            <div class="bg-white p-8 rounded-xl hover:shadow-md transition-all duration-300">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                    <i class="fas fa-flask text-2xl text-green-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Предрелизная версия</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    На данный момент сервис полностью бесплатен. Мы совершенствуем алгоритмы, 
+                    учитывая запросы пользователей для создания максимально полезного продукта
+                </p>
+            </div>
+        </div>
+
+    </div>
+        </section>
+
+       <!-- Calculator Section -->
+		<section id="calculator" class="hero-gradient py-16 bg-white section">
+			<div class="container mx-auto px-4">
+				<div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-md">
+					<h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Анализ перспектив апелляции</h2>
+					
+					<form id="calc-form" action="/upload" method="post" enctype="multipart/form-data">
+						<div class="mb-8">
+							<div class="file-upload p-8 rounded-lg text-center cursor-pointer mb-4" 
+								 id="drop-area"
+								 onclick="document.getElementById('file-upload').click()">
+								<input type="file" name="file" id="file-upload" class="hidden" accept=".pdf,.docx" required>
+								<i class="fas fa-cloud-upload-alt text-4xl text-indigo-400 mb-3"></i>
+								<p class="text-gray-500">Перетащите сюда файл с решением суда или нажмите для выбора</p>
+								<p class="text-sm text-gray-400 mt-2">Максимальный размер файла: 30MB</p>
+							</div>
+							<div id="file-info" class="hidden bg-indigo-50 p-3 rounded-lg flex items-center">
+								<i class="fas fa-file text-indigo-600 mr-3"></i>
+								<span id="file-name" class="font-medium"></span>
+								<button type="button" id="remove-file" class="ml-auto text-red-500">
+									<i class="fas fa-times"></i>
+								</button>
+							</div>
+						</div>
+
+						<div class="mb-6">
+							<input type="email" name="email" id="email" 
+								   class="w-full p-3 border rounded-lg" 
+								   placeholder="Введите ваш E-mail" 
+								   required>
+						</div>
+
+						<div class="mb-6">
+							<label class="flex items-center">
+								<input type="checkbox" id="consent" class="mr-2" required>
+								<span class="text-sm text-gray-600">Я согласен на обработку персональных данных в соответствии с <a href="https://predictdecision.ru/agreement" class="text-indigo-600 hover:underline">Соглашением</a> и <a href="https://predictdecision.ru/oferta" class="text-indigo-600 hover:underline">Публичной офертой</a></span>
+							</label>
+						</div>
+						
+						<button type="submit" id="calculate-btn" 
+								class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+								disabled>
+							<i class="fas fa-chart-pie mr-2"></i> Рассчитать вероятность отмены решения
+						</button>
+					</form>
+					<label class="block text-gray-400 text-sm mb-2">Ваши персональные данные надежно защищены и не передаются третьим лицам. Мы не сохраняем полные тексты присланных решений - только ключевые параметры для статистики.</label>
+				</div>
+			</div>
+		</section>
+
+    <!-- Results Modal -->
+		<div id="results-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+		<div class="bg-white rounded-xl p-8 w-full max-w-md mx-4">
+			<div class="flex justify-between items-center mb-6">
+				<h3 class="text-2xl font-bold text-gray-800">Результаты анализа</h3>
+				<button id="close-modal" class="text-gray-400 hover:text-gray-600">
+					<i class="fas fa-times text-xl"></i>
+				</button>
+			</div>
+			
+			<div id="loading" class="text-center py-8">
+				<div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+				<p class="text-gray-600">Идет анализ документа...</p>
+			</div>
+            
+            <div id="results-content" >
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Шансы на успешное обжалование</h2>
+                    <div class="relative w-32 h-32 mx-auto mb-4">
+                        <svg class="w-full h-full" viewBox="0 0 36 36">
+                            <path
+                                d="M18 2.0845
+                                    a 15.9155 15.9155 0 0 1 0 31.831
+                                    a 15.9155 15.9155 0 0 1 0 -31.831"
+                                fill="none"
+                                stroke="#e6e6e6"
+                                stroke-width="3"
+                                stroke-dasharray="100, 100"
+                            />
+                            <path
+                                id="result-circle"
+                                d="M18 2.0845
+                                    a 15.9155 15.9155 0 0 1 0 31.831
+                                    a 15.9155 15.9155 0 0 1 0 -31.831"
+                                fill="none"
+                                stroke="#4f46e5"
+                                stroke-width="3"
+                                stroke-dasharray="0, 100"
+                                stroke-linecap="round"
+                            />
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span id="probability" class="text-3xl font-bold text-gray-800">0%</span>
+                        </div>
+                    </div>
+                    <h4 id="result-title" class="text-xl font-semibold mb-2"></h4>
+                    <p id="result-subtitle" class="text-gray-600"></p>
+                </div>
+                
+                <div class="bg-indigo-50 p-4 rounded-lg mb-6">
+                    <h4 class="font-medium text-indigo-800 mb-2">Ключевые моменты для апелляции:</h4>
+                    <ul id="key-points" class="list-disc pl-5 space-y-1 text-gray-700">
+                        <!-- Dynamically filled -->
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-medium text-gray-800 mb-2">Рекомендации:</h4>
+                    <p id="recommendations" class="text-gray-700"></p>
+                </div>
+                
+                <button class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                    Сохранить полный отчет
+                </button>
+                <button class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                    Составить аппеляционную жалобу
+                </button>
+            </div>
+        </div>
+    </div>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="py-16 bg-gray-50 section">
+            <div class="container mx-auto px-4 max-w-4xl">
+                <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Вопросы и ответы</h2>
+                <div class="space-y-4">
+                    <div class="border-b pb-4">
+                        <button class="faq-toggle flex justify-between items-center w-full text-left">
+                            <h3 class="text-lg font-medium">Как работает система оценки шансов?</h3>
+                            <i class="fas fa-chevron-down text-indigo-600 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-content mt-2 text-gray-600 hidden">
+                            <p>Наша система использует технологии искусственного интеллекта и машинного обучения для анализа текста судебного решения. Алгоритм сопоставляет содержание вашего дела с тысячами других аналогичных решений и их апелляционных исходов из базы данных судебной практики.</p>
+                        </div>
+                    </div>
+					<div class="border-b pb-4">
+                        <button class="faq-toggle flex justify-between items-center w-full text-left">
+                            <h3 class="text-lg font-medium">Насколько точны результаты анализа?</h3>
+                            <i class="fas fa-chevron-down text-indigo-600 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-content mt-2 text-gray-600 hidden">
+                            <p>Точность оценки составляет около 90%* по сравнению с заключениями профессиональных юристов. Однако важно понимать, что это только прогноз, а не гарантия результата. Окончательное решение зависит от многих факторов, включая аргументацию в апелляционной жалобе и конкретного состава суда.</p>
+                        </div>
+                    </div>
+					<div class="border-b pb-4">
+                        <button class="faq-toggle flex justify-between items-center w-full text-left">
+                            <h3 class="text-lg font-medium">Как обрабатываются мои данные?</h3>
+                            <i class="fas fa-chevron-down text-indigo-600 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-content mt-2 text-gray-600 hidden">
+                            <p>Все загружаемые документы анализируются автоматически без участия человека. Мы не сохраняем полные тексты присланных решений - только ключевые параметры для статистики. Ваши персональные данные надежно защищены и не передаются третьим лицам.</p>
+                        </div>
+                    </div>
+					<div class="border-b pb-4">
+                        <button class="faq-toggle flex justify-between items-center w-full text-left">
+                            <h3 class="text-lg font-medium">Имеется ли регистрация данной системы?</h3>
+                            <i class="fas fa-chevron-down text-indigo-600 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-content mt-2 text-gray-600 hidden">
+                            <p>Да. «Программный комплекс определения успешности апелляции по гражданским делам искового производства» имеет регистрацию в Роспатенте, номер регистрации 2024661583.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+<!-- Testimonials Section -->
+        <section id="testimonials" class="py-16 bg-gray-50 section">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Отзывы клиентов</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="testimonial-card bg-white p-6 rounded-lg hover:shadow-lg">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center font-bold text-xl mr-3">ИК</div>
+                            <div>
+                                <h4 class="font-bold">Иван К.</h4>
+                                <div class="text-yellow-500">
+                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-3">"Точный прогноз - 68% шансов. Добился отмены решения!"</p>
+                        <div class="text-sm text-gray-400">Гражданское дело</div>
+                    </div>
+					<div class="testimonial-card bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center font-bold text-xl mr-3">ИК</div>
+                            <div>
+                                <h4 class="font-bold">Елена С.</h4>
+                                <div class="text-yellow-500">
+                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-3">"Сэкономила кучу времени и нервов. Анализ помог понять, на каких моментах стоит сделать акцент в апелляции. Очень полезный сервис!"</p>
+                        <div class="text-sm text-gray-400">Спор о защите прав потребителей</div>
+                    </div>
+					<div class="testimonial-card bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center font-bold text-xl mr-3">ИК</div>
+                            <div>
+                                <h4 class="font-bold">Андрей М.</h4>
+                                <div class="text-yellow-500">
+                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-3">"Прогноз был верный. Решение не отменили, но существенно изменили, что для меня стало победой. Рекомендую!"</p>
+                        <div class="text-sm text-gray-400">Трудовой спор</div>
+                    </div>
+                </div>
+
+                <div class="mt-12 grid md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-indigo-600 mb-2">3,500+</div>
+                        <div class="text-gray-600">Ежемесячных пользователей</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-indigo-600 mb-2">89%</div>
+                        <div class="text-gray-600">Точность прогнозов*</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-indigo-600 mb-2">4.8</div>
+                        <div class="text-gray-600">Средняя оценка</div>
+                    </div>
+                </div>
+            </div>
+			<div class="mt-12 text-center">
+            <p class="text-gray-500 italic">
+                *Точность прогноза подтверждена тестированием на 15,000 реальных судебных дел
+            </p>
+        </div>
+        </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12 section">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Апелляционный помощник</h3>
+                    <p class="text-gray-400">Инновационный сервис оценки перспектив апелляции</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Навигация</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#hero" class="text-gray-400 hover:text-white">Главная</a></li>
+                        <li><a href="#benefits" class="text-gray-400 hover:text-white">Преимущества</a></li>
+                        <li><a href="#testimonials" class="text-gray-400 hover:text-white">Отзывы</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Правовая информация</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Конфиденциальность</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Условия использования</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Контакты</h4>
+                    <ul class="space-y-2">
+                        <li><i class="fas fa-envelope mr-2 text-gray-400"></i>predictdecision@mail.ru</li>
+                        <li><i class="fas fa-phone mr-2 text-gray-400"></i>8 (920) 418-54-54</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>© ООО «НЕЙРОПРАВО», 2025. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+	<!-- Cookie Consent -->
+		<div id="cookie-consent" class="hidden fixed bottom-0 left-0 right-0 bg-gray-800 text-white py-4 px-4 md:px-8">
+			<div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+				<div class="text-center md:text-left text-sm">
+					Используя наш сайт, вы соглашаетесь, что мы можем хранить куки (cookies) в вашем браузере для анализа работы сайта.
+				</div>
+				<button id="cookie-accept" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2 rounded-full whitespace-nowrap transition-colors">
+					Понятно
+				</button>
+			</div>
+		</div>
+		<div id="scroll-cue" class="fixed inset-x-0 bottom-2 z-50 opacity-0 transition-opacity duration-1000">
+			<div class="relative mx-auto w-20 h-10 flex items-center justify-center">
+				<div class="absolute w-6 h-6 border-2 border-indigo-400/30 rounded-full animate-scroll-pulse"></div>
+				<div class="w-3 h-3 bg-indigo-400/80 rounded-full animate-scroll-dot"></div>
+			</div>
+		</div>
+    <script>
+		// Cookie Consent
+		const cookieConsent = document.getElementById('cookie-consent');
+		const cookieAccept = document.getElementById('cookie-accept');
+
+		if (!localStorage.getItem('cookiesAccepted')) {
+			setTimeout(() => {
+				cookieConsent.classList.remove('hidden');
+			}, 2000);
+		}
+
+		cookieAccept.addEventListener('click', () => {
+			localStorage.setItem('cookiesAccepted', 'true');
+			cookieConsent.classList.add('hidden');
+		});
+		
+		// Функционал загрузки файла и валидации
+		const fileInput = document.getElementById('file-upload');
+		const emailInput = document.getElementById('email');
+		const consentCheckbox = document.getElementById('consent');
+		const calculateBtn = document.getElementById('calculate-btn');
+		const form = document.getElementById('calc-form');
+		const loading = document.getElementById('loading');
+		// Валидация формы
+		function validateForm() {
+			const isFileSelected = fileInput.files.length > 0;
+			const isEmailValid = emailInput.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/);
+			const isConsentChecked = consentCheckbox.checked;
+
+			calculateBtn.disabled = !(isFileSelected && isEmailValid && isConsentChecked);
+		}
+
+				// Слушатели событий
+		fileInput.addEventListener('change', validateForm);
+		emailInput.addEventListener('input', validateForm);
+		consentCheckbox.addEventListener('change', validateForm);
+
+		// Инициализация
+		validateForm(); 
+
+		
+
+        
+		form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const modal = document.getElementById('results-modal');
+        const loading = document.getElementById('loading');
+        const resultsContent = document.getElementById('results-content');
+        
+
+        modal.classList.remove('hidden');
+        loading.classList.remove('hidden');
+        resultsContent.classList.add('hidden');
+
+        try {
+            const formData = new FormData(form);
+            
+            const response = await fetch('/analyze', {
+            method: 'POST',
+            body: formData
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) throw new Error(data.error || 'Ошибка сервера');
+
+            // Обновляем данные в модальном окне
+            document.getElementById('probability').textContent = `${data.probability}%`;
+            document.getElementById('result-title').textContent = data.title;
+            document.getElementById('result-subtitle').textContent = data.subtitle;
+            
+            const keyPointsList = document.getElementById('key-points');
+            keyPointsList.innerHTML = data.keyPoints
+            .map(point => `<li>${point}</li>`)
+            .join('');
+            
+            document.getElementById('recommendations').textContent = data.recommendations;
+
+            // Анимация круговой диаграммы
+            const circle = document.getElementById('result-circle');
+            const circumference = 2 * Math.PI * 15.9155;
+            circle.style.strokeDasharray = circumference;
+            circle.style.strokeDashoffset = circumference * ((100 - data.probability)/100);
+
+            loading.classList.add('hidden');
+            resultsContent.classList.remove('hidden');
+
+        } catch (error) {
+            console.error('Error:', error);
+            loading.classList.add('hidden');
+            const errorMessage = error.message.includes('probability') 
+                ? 'Невозможно проанализировать документ. Проверьте формат файла' 
+                : error.message;
+                
+            resultsContent.innerHTML = `
+                <div class="p-4 bg-red-50 text-red-600 rounded-lg">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                ${errorMessage}
+                </div>
+            `;
+            resultsContent.classList.remove('hidden');
+            }
+        });
+
+		
+		
+		
+        class ScrollManager {
+			constructor() {
+				this.sections = document.querySelectorAll('.section');
+				this.navLinks = document.querySelectorAll('.nav-link');
+				this.observerOptions = { threshold: 0.1, rootMargin: '0px 0px -100px 0px' };
+				this.init();
+				this.initScrollCue();
+				this.setupScrollRestoration();
+				this.initMobileMenu();
+				this.initLogoScroll();
+			}
+
+			init() {
+				this.setupIntersectionObserver();
+				this.setupNavigation();
+				this.setupMobileMenu();
+				this.setupPreloader();
+				this.addResizeListener();
+				this.setupFileUpload();
+				this.setupFAQ();
+				this.setupModal();
+			}
+			initScrollCue() {
+					const cue = document.getElementById('scroll-cue');
+					let timeoutId, lastScroll = 0;
+					
+					const showCue = () => {
+						if (window.scrollY === 0 && window.innerHeight < document.documentElement.scrollHeight) {
+							cue.style.opacity = '1';
+							timeoutId = setTimeout(hideCue, 17000);
+						}
+					}
+
+					const hideCue = () => {
+						cue.style.opacity = '0';
+					}
+
+					const handleScroll = () => {
+						const currentScroll = window.scrollY;
+						
+						if (Math.abs(currentScroll - lastScroll) > 50 || currentScroll === 0) {
+							clearTimeout(timeoutId);
+							hideCue();
+						}
+						
+						lastScroll = currentScroll;
+					}
+
+					// Показать через x милисекунд если пользователь неактивен
+					setTimeout(showCue, 500);
+					
+					// Отслеживание взаимодействий
+					window.addEventListener('scroll', handleScroll);
+					window.addEventListener('mousemove', hideCue);
+					window.addEventListener('touchstart', hideCue);
+			}
+			initMobileMenu() {
+				const menuToggle = document.getElementById('menu-toggle');
+				const mobileMenu = document.getElementById('mobile-menu');
+				const closeButton = document.getElementById('close-menu');
+				const menuOverlay = document.getElementById('menu-overlay');
+				let isMenuOpen = false;
+
+				const toggleMenu = (shouldOpen) => {
+					isMenuOpen = typeof shouldOpen === 'boolean' ? shouldOpen : !isMenuOpen;
+					mobileMenu.classList.toggle('active', isMenuOpen);
+					document.body.classList.toggle('no-scroll', isMenuOpen);
+				};
+
+				// Открытие меню
+				menuToggle.addEventListener('click', (e) => {
+					e.stopPropagation();
+					toggleMenu(true);
+				});
+
+				// Закрытие меню
+				closeButton.addEventListener('click', () => toggleMenu(false));
+				menuOverlay.addEventListener('click', () => toggleMenu(false));
+
+				// Закрытие при клике на ссылки
+				mobileMenu.querySelectorAll('a').forEach(link => {
+					link.addEventListener('click', () => toggleMenu(false));
+				});
+
+				// Закрытие по ESC
+				document.addEventListener('keydown', (e) => {
+					if (e.key === 'Escape' && isMenuOpen) toggleMenu(false);
+				});
+
+				// Сброс при изменении размера окна
+				window.addEventListener('resize', () => {
+					if (window.innerWidth > 767 && isMenuOpen) toggleMenu(false);
+				});
+			}
+			initLogoScroll() {
+					const logo = document.getElementById('logo');
+					logo.addEventListener('click', (e) => {
+						e.preventDefault(); // Предотвращаем стандартное поведение, если есть
+						window.scrollTo({
+							top: 0,
+							behavior: 'smooth' // Плавная прокрутка
+						});
+					});
+			}
+
+			setupScrollRestoration() {
+				if ('scrollRestoration' in history) {
+					history.scrollRestoration = 'manual';
+				}
+
+				window.addEventListener('beforeunload', () => {
+					localStorage.setItem('scrollPosition', window.scrollY);
+				});
+
+				window.addEventListener('load', () => {
+					const savedScrollPosition = localStorage.getItem('scrollPosition');
+					if (savedScrollPosition !== null) {
+						window.scrollTo(0, savedScrollPosition);
+					} else {
+						window.scrollTo(0, 0);
+					}
+					requestAnimationFrame(() => {
+						document.documentElement.style.scrollBehavior = 'auto';
+					});
+				});
+			}
+
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        entry.target.classList.toggle('active', entry.isIntersecting);
+                    });
+                }, this.observerOptions);
+
+                this.sections.forEach(section => observer.observe(section));
+            }
+
+            setupNavigation() {
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', e => {
+                        e.preventDefault();
+                        const target = document.querySelector(anchor.getAttribute('href'));
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        this.closeMobileMenu();
+                    });
+                });
+
+                window.addEventListener('scroll', () => this.updateActiveNavLink());
+            }
+
+            updateActiveNavLink() {
+                const scrollPosition = window.scrollY + window.innerHeight / 2;
+                
+                this.sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionBottom = sectionTop + section.offsetHeight;
+                    const id = section.getAttribute('id');
+
+                    if (scrollPosition >= sectionTop && scrollPosition <= sectionBottom) {
+                        this.navLinks.forEach(link => {
+                            const isActive = link.getAttribute('href') === `#${id}`;
+                            link.classList.toggle('text-indigo-600', isActive);
+                            link.setAttribute('aria-current', isActive ? 'page' : 'false');
+                        });
+                    }
+                });
+            }
+
+            setupMobileMenu() {
+                const menuToggle = document.getElementById('menu-toggle');
+                const mobileMenu = document.getElementById('mobile-menu');
+
+                const toggleMenu = () => {
+                    const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+                    menuToggle.setAttribute('aria-expanded', !isExpanded);
+                    mobileMenu.classList.toggle('translate-x-full');
+                };
+
+                menuToggle.addEventListener('click', toggleMenu);
+                document.getElementById('close-menu').addEventListener('click', toggleMenu);
+
+                document.body.addEventListener('click', (e) => {
+                    if (!mobileMenu.contains(e.target) && 
+                        !menuToggle.contains(e.target) &&
+                        !mobileMenu.classList.contains('translate-x-full')) {
+                        toggleMenu();
+                    }
+                });
+            }
+
+            setupFileUpload() {
+                const fileUpload = document.getElementById('file-upload');
+                const dropArea = document.getElementById('drop-area');
+                const validTypes = [
+                    'application/pdf',
+                    'text/plain',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                ];
+                
+                const highlight = () => dropArea.classList.add('border-indigo-500', 'bg-indigo-50');
+                const unhighlight = () => dropArea.classList.remove('border-indigo-500', 'bg-indigo-50');
+
+                ['dragenter', 'dragover'].forEach(event => {
+                    dropArea.addEventListener(event, highlight);
+                });
+
+                ['dragleave', 'drop'].forEach(event => {
+                    dropArea.addEventListener(event, unhighlight);
+                });
+
+                dropArea.addEventListener('drop', e => {
+                    const files = e.dataTransfer.files;
+                    this.handleFiles({ target: { files } });
+                });
+
+                fileUpload.addEventListener('change', e => this.handleFiles(e));
+            }
+
+            handleFiles(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                if (!validTypes.includes(file.type)) {
+                alert('Поддерживаются только PDF, DOCX и TXT файлы');
+                return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Максимальный размер файла: 5MB');
+                    return;
+                }
+
+                document.getElementById('file-name').textContent = file.name;
+                document.getElementById('file-info').classList.remove('hidden');
+                document.getElementById('calculate-btn').disabled = false;
+            }
+
+            setupFAQ() {
+                document.querySelectorAll('.faq-toggle').forEach(toggle => {
+                    toggle.addEventListener('click', () => {
+                        const content = toggle.nextElementSibling;
+                        const icon = toggle.querySelector('i');
+                        content.classList.toggle('hidden');
+                        icon.classList.toggle('rotate-180');
+                    });
+                });
+            }
+
+            setupModal() {
+                const modal = document.getElementById('results-modal');
+                document.getElementById('calculate-btn').addEventListener('click', () => {
+                    modal.classList.remove('hidden');
+                    setTimeout(() => this.showResults(), 2000);
+                });
+
+                document.getElementById('close-modal').addEventListener('click', () => {
+                    modal.classList.add('hidden');
+                });
+            }
+
+            showResults() {
+                // Логика отображения результатов
+            }
+
+            setupPreloader() {
+                window.addEventListener('load', () => {
+                    document.getElementById('preloader').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('preloader').style.display = 'none';
+                    }, 500);
+                });
+            }
+
+            addResizeListener() {
+                let resizeTimer;
+                window.addEventListener('resize', () => {
+                    document.body.classList.add('resize-animation-stopper');
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(() => {
+                        document.body.classList.remove('resize-animation-stopper');
+                    }, 400);
+                });
+            }
+        }
+
+	window.addEventListener('DOMContentLoaded', () => {
+    new ScrollManager();
+});
+	</script>
+		
+</body>
+</html>
