@@ -9,7 +9,9 @@ const ajv = new Ajv();
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-
+const cookieParser = require('cookie-parser');
+const axios = require('axios');
+const crypto = require('crypto');
 const app = express();
 const port = 3000;
 const upload = multer({ dest: 'uploads/', limits: { fileSize: 30 * 1024 * 1024 } });
@@ -17,6 +19,13 @@ const upload = multer({ dest: 'uploads/', limits: { fileSize: 30 * 1024 * 1024 }
 app.use(express.static('public'));
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser());
+
+// Настройки Точка банк
+const TOCHKA_API_URL = 'https://enter.tochka.com/api/v2 ';
+const TOCHKA_CLIENT_ID = process.env.TOCHKA_CLIENT_ID;
+const TOCHKA_CLIENT_SECRET = process.env.TOCHKA_CLIENT_SECRET;
+const TOCHKA_REDIRECT_URI = process.env.TOCHKA_REDIRECT_URI;
 
 // Обработка файлов
 async function processFile(filePath, ext) {
@@ -165,10 +174,20 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
     if (!result.probability || result.probability < 0 || result.probability > 100) {
       throw new Error('Некорректное значение вероятности');
     }
-  
-    res.json(result);
- 
-   } catch (err) {
+     const sessionId = crypto.randomBytes(16).toString('hex');
+    analysisSessions.set(sessionId, fullResult);
+    
+    // Формируем частичный результат для бесплатного отображения
+    const limitedResult = {
+      sessionId,
+      probability: fullResult.probability,
+      title: fullResult.title,
+      subtitle: fullResult.subtitle.substring(0, 100) + '...',
+      isPaid: false
+    };
+    
+    res.json(limitedResult);
+  } catch (err) {
     console.error('Ошибка:', {
       rawResponse: rawContent || 'N/A',
       error: err.message
@@ -181,6 +200,124 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
   }
 });
 
+async function getTochkaAccessToken() {
+  try {
+    const response = await axios.post(
+      `${TOCHKA_API_URL}/oauth2/token`,
+      {
+        grant_type: 'client_credentials',
+        client_id: TOCHKA_CLIENT_ID,
+        client_secret: TOCHKA_CLIENT_SECRET,
+        scope: 'payments'
+      },
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      }
+    );
+    
+    return response.data.access_token;
+  } catch (error) {
+    console.error('Ошибка получения токена:', error);
+    throw error;
+  }
+}
 
-app.get('/', (req, res) => res.sendFile(__dirname + '/PreDec.html'));
+// Маршрут создания платежа
+app.post('/create-payment', async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+    
+    if (!sessionId || !analysisSessions.has(sessionId)) {
+      return res.status(400).json({ error: 'Некорректная сессия анализа' });
+    }
+    
+    const paymentId = crypto.randomBytes(8).toString('hex');
+    const accessToken = await getTochkaAccessToken();
+    
+    // Создание платежа через API Точка банк
+    const paymentData = {
+      amount: 490, // Цена услуги
+      currency: 'RUB',
+      description: 'Полный анализ судебного решения',
+      redirectUrl: `${req.protocol}://${req.get('host')}/payment-callback?sessionId=${sessionId}&paymentId=${paymentId}`,
+      metadata: { sessionId, paymentId }
+    };
+    
+    const tochkaResponse = await axios.post(
+      `${TOCHKA_API_URL}/payment/order`,
+      paymentData,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    res.json({ paymentUrl: tochkaResponse.data.redirectURL });
+  } catch (error) {
+    console.error('Ошибка создания платежа:', error);
+    res.status(500).json({ error: 'Ошибка при создании платежа' });
+  }
+});
+
+// Маршрут для получения полных результатов после оплаты
+app.get('/full-analysis/:sessionId', (req, res) => {
+  const { sessionId } = req.params;
+  
+  // Проверяем оплату через куки
+  if (!req.cookies.paidAnalysis || req.cookies.paidAnalysis !== sessionId) {
+    return res.status(402).json({ error: 'Требуется оплата' });
+  }
+  
+  if (!analysisSessions.has(sessionId)) {
+    return res.status(404).json({ error: 'Анализ не найден' });
+  }
+  
+  const fullResult = analysisSessions.get(sessionId);
+  res.json({ ...fullResult, isPaid: true });
+});
+
+// Маршрут для обработки колбэка после оплаты
+app.get('/payment-callback', async (req, res) => {
+  const { sessionId, paymentId } = req.query;
+  
+  if (!sessionId || !analysisSessions.has(sessionId)) {
+    return res.status(400).json({ error: 'Некорректная сессия' });
+  }
+  
+  try {
+    const accessToken = await getTochkaAccessToken();
+    const statusResponse = await axios.get(
+      `${TOCHKA_API_URL}/payment/status/${paymentId}`,
+      {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      }
+    );
+    
+    if (statusResponse.data.status === 'completed') {
+      // Устанавливаем куку об оплате
+      res.cookie('paidAnalysis', sessionId, { 
+        maxAge: 86400000, // 24 часа
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production'
+      });
+      
+      res.redirect(`/?payment=success&sessionId=${sessionId}`);
+    } else {
+      res.redirect('/?payment=failed');
+    }
+  } catch (error) {
+    console.error('Ошибка проверки платежа:', error);
+    res.redirect('/?payment=error');
+  }
+});
+
+// Добавляем обработку корневого пути
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'PreDec.html'));
+});
+
 app.listen(port, () => console.log(`Сервер запущен на порту ${port}`));
