@@ -1039,6 +1039,159 @@
 	window.addEventListener('DOMContentLoaded', () => {
     new ScrollManager();
 });
+	document.addEventListener('DOMContentLoaded', function() {
+  // Проверяем параметры URL после возврата с платежной страницы
+  const urlParams = new URLSearchParams(window.location.search);
+  const paymentStatus = urlParams.get('payment');
+  const sessionId = urlParams.get('sessionId');
+  
+  if (paymentStatus === 'success' && sessionId) {
+    loadFullAnalysis(sessionId);
+  }
+  
+  // Предполагаем, что у нас есть форма загрузки файла
+  const uploadForm = document.getElementById('uploadForm');
+  if (uploadForm) {
+    uploadForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const submitButton = this.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      submitButton.textContent = 'Анализируем...';
+      
+      fetch('/analyze', {
+        method: 'POST',
+        body: formData
+      })
+        .then(response => response.json())
+        .then(data => {
+          submitButton.disabled = false;
+          submitButton.textContent = 'Рассчитать вероятность отмены решения';
+          
+          if (data.error) {
+            alert(`Ошибка: ${data.error}`);
+            return;
+          }
+          
+          displayPartialResult(data);
+        })
+        .catch(error => {
+          submitButton.disabled = false;
+          submitButton.textContent = 'Рассчитать вероятность отмены решения';
+          alert(`Ошибка: ${error.message}`);
+        });
+    });
+  }
+  
+  // Обработчик клика по кнопке оплаты
+  document.getElementById('paymentButton').addEventListener('click', function() {
+    const sessionId = this.dataset.sessionId;
+    if (!sessionId) {
+      alert('Ошибка: сессия анализа не найдена');
+      return;
+    }
+    
+    fetch('/create-payment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ sessionId })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert(`Ошибка: ${data.error}`);
+          return;
+        }
+        
+        window.location.href = data.paymentUrl;
+      })
+      .catch(error => {
+        alert(`Ошибка при создании платежа: ${error.message}`);
+      });
+  });
+});
+
+// Функция для отображения частичного результата
+function displayPartialResult(data) {
+  const resultContainer = document.getElementById('analysisResult');
+  const title = document.getElementById('resultTitle');
+  const subtitle = document.getElementById('resultSubtitle');
+  const probabilityBadge = document.getElementById('probabilityBadge');
+  const paymentButton = document.getElementById('paymentButton');
+  
+  // Устанавливаем данные
+  title.textContent = data.title;
+  subtitle.textContent = data.subtitle;
+  probabilityBadge.textContent = `${data.probability}%`;
+  
+  // Определяем цвет индикатора вероятности
+  probabilityBadge.className = 'probability-badge';
+  if (data.probability >= 70) {
+    probabilityBadge.classList.add('probability-high');
+  } else if (data.probability >= 30) {
+    probabilityBadge.classList.add('probability-medium');
+  } else {
+    probabilityBadge.classList.add('probability-low');
+  }
+  
+  // Сохраняем sessionId для платежа
+  paymentButton.dataset.sessionId = data.sessionId;
+  
+  // Показываем результаты
+  resultContainer.style.display = 'block';
+  resultContainer.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Функция загрузки полного анализа после оплаты
+function loadFullAnalysis(sessionId) {
+  fetch(`/full-analysis/${sessionId}`)
+    .then(response => {
+      if (response.status === 402) {
+        alert('Требуется оплата для просмотра полного анализа.');
+        return null;
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (!data) return;
+      
+      // Отображаем базовую информацию
+      displayPartialResult(data);
+      
+      // Отображаем полный результат
+      displayFullResult(data);
+    })
+    .catch(error => {
+      alert(`Ошибка при загрузке полного анализа: ${error.message}`);
+    });
+}
+
+// Функция отображения полного результата
+function displayFullResult(data) {
+  const partialResult = document.getElementById('partialResult');
+  const fullResult = document.getElementById('fullResult');
+  const keyPointsList = document.getElementById('keyPointsList');
+  const recommendations = document.getElementById('recommendations');
+  
+  // Скрываем платежную стену и показываем полные результаты
+  partialResult.style.display = 'none';
+  fullResult.style.display = 'block';
+  
+  // Заполняем ключевые моменты
+  keyPointsList.innerHTML = '';
+  data.keyPoints.forEach(point => {
+    const keyPoint = document.createElement('div');
+    keyPoint.className = 'key-point';
+    keyPoint.textContent = point;
+    keyPointsList.appendChild(keyPoint);
+  });
+  
+  // Заполняем рекомендации
+  recommendations.innerHTML = data.recommendations.replace(/\n/g, '<br>');
+} 
 	</script>
 		
 </body>
