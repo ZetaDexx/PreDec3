@@ -379,6 +379,13 @@
 		</section>
 
     <!-- Results Modal -->
+
+	    <div id="payment-required" class="hidden">
+    <p class="text-red-500 mb-4">Для просмотра полного результата требуется оплата.</p>
+    <a href="#" id="pay-button" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+        Оплатить 490 руб.
+    </a>
+</div>
 		<div id="results-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
 		<div class="bg-white rounded-xl p-8 w-full max-w-md mx-4">
 			<div class="flex justify-between items-center mb-6">
@@ -660,39 +667,33 @@
 
         
 		form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const modal = document.getElementById('results-modal');
-        const loading = document.getElementById('loading');
-        const resultsContent = document.getElementById('results-content');
-        
+    e.preventDefault();
+    const modal = document.getElementById('results-modal');
+    const loading = document.getElementById('loading');
+    const resultsContent = document.getElementById('results-content');
+    const paymentRequired = document.getElementById('payment-required');
+    modal.classList.remove('hidden');
+    loading.classList.remove('hidden');
+    resultsContent.classList.add('hidden');
+    paymentRequired.classList.add('hidden');
 
-        modal.classList.remove('hidden');
-        loading.classList.remove('hidden');
-        resultsContent.classList.add('hidden');
-
-        try {
-            const formData = new FormData(form);
-            
-            const response = await fetch('/analyze', {
+    try {
+        const formData = new FormData(form);
+        const response = await fetch('/analyze', {
             method: 'POST',
             body: formData
-            });
+        });
+        const data = await response.json();
 
-            const data = await response.json();
-            
-            if (!response.ok) throw new Error(data.error || 'Ошибка сервера');
+        if (!response.ok) throw new Error(data.error || 'Ошибка сервера');
 
-            // Обновляем данные в модальном окне
+        if (data.isPaid) {
+            // Отображаем полный результат
             document.getElementById('probability').textContent = `${data.probability}%`;
             document.getElementById('result-title').textContent = data.title;
             document.getElementById('result-subtitle').textContent = data.subtitle;
-            
             const keyPointsList = document.getElementById('key-points');
-            keyPointsList.innerHTML = data.keyPoints
-            .map(point => `<li>${point}</li>`)
-            .join('');
-            
+            keyPointsList.innerHTML = data.keyPoints.map(point => `<li>${point}</li>`).join('');
             document.getElementById('recommendations').textContent = data.recommendations;
 
             // Анимация круговой диаграммы
@@ -703,24 +704,42 @@
 
             loading.classList.add('hidden');
             resultsContent.classList.remove('hidden');
-
-        } catch (error) {
-            console.error('Error:', error);
+        } else {
+            // Показываем кнопку оплаты
             loading.classList.add('hidden');
-            const errorMessage = error.message.includes('probability') 
-                ? 'Невозможно проанализировать документ. Проверьте формат файла' 
-                : error.message;
+            paymentRequired.classList.remove('hidden');
+            
+            // Добавляем обработчик на кнопку оплаты
+            document.getElementById('pay-button').addEventListener('click', async (e) => {
+                e.preventDefault();
                 
-            resultsContent.innerHTML = `
-                <div class="p-4 bg-red-50 text-red-600 rounded-lg">
-                <i class="fas fa-exclamation-triangle mr-2"></i>
-                ${errorMessage}
-                </div>
-            `;
-            resultsContent.classList.remove('hidden');
-            }
-        });
+                // Получаем платежную ссылку
+                const paymentResponse = await fetch('/create-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ sessionId: data.sessionId })
+                });
 
+                const paymentData = await paymentResponse.json();
+                if (paymentData.paymentUrl) {
+                    window.location.href = paymentData.paymentUrl;
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        loading.classList.add('hidden');
+        resultsContent.innerHTML = `
+            <div class="p-4 bg-red-50 text-red-600 rounded-lg">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                ${error.message}
+            </div>
+        `;
+        resultsContent.classList.remove('hidden');
+    }
+});
 		
 		
 		
