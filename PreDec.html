@@ -29,7 +29,64 @@
         .hero-gradient {
             background: linear-gradient(135deg, #e0e0e0 0%, #c0c0c0 100%);
         }
-
+	
+  .result-container {
+    margin-top: 30px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .probability-badge {
+    font-size: 24px;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 15px;
+    color: white;
+  }
+  
+  .probability-high {
+    background-color: #28a745;
+  }
+  
+  .probability-medium {
+    background-color: #ffc107;
+  }
+  
+  .probability-low {
+    background-color: #dc3545;
+  }
+  
+  .paywall {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center;
+    border: 1px dashed #ced4da;
+  }
+  
+  .payment-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .key-point {
+    background-color: #fff;
+    border-left: 3px solid #007bff;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 0 5px 5px 0;
+  }
+	
         .section {
             transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
                        opacity 0.6s ease;
@@ -197,6 +254,7 @@
 				50% { transform: scale(1.1); }
 			}
 		}
+    
     </style>
 </head>
 <body class="relative">
@@ -378,76 +436,45 @@
 			</div>
 		</section>
 
-    <!-- Results Modal -->
-		<div id="results-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-		<div class="bg-white rounded-xl p-8 w-full max-w-md mx-4">
-			<div class="flex justify-between items-center mb-6">
-				<h3 class="text-2xl font-bold text-gray-800">Результаты анализа</h3>
-				<button id="close-modal" class="text-gray-400 hover:text-gray-600">
-					<i class="fas fa-times text-xl"></i>
-				</button>
-			</div>
-			
-			<div id="loading" class="text-center py-8">
-				<div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto mb-4"></div>
-				<p class="text-gray-600">Идет анализ документа...</p>
-			</div>
-            
-            <div id="results-content" >
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800">Шансы на успешное обжалование</h2>
-                    <div class="relative w-32 h-32 mx-auto mb-4">
-                        <svg class="w-full h-full" viewBox="0 0 36 36">
-                            <path
-                                d="M18 2.0845
-                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                fill="none"
-                                stroke="#e6e6e6"
-                                stroke-width="3"
-                                stroke-dasharray="100, 100"
-                            />
-                            <path
-                                id="result-circle"
-                                d="M18 2.0845
-                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                fill="none"
-                                stroke="#4f46e5"
-                                stroke-width="3"
-                                stroke-dasharray="0, 100"
-                                stroke-linecap="round"
-                            />
-                        </svg>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <span id="probability" class="text-3xl font-bold text-gray-800">0%</span>
-                        </div>
-                    </div>
-                    <h4 id="result-title" class="text-xl font-semibold mb-2"></h4>
-                    <p id="result-subtitle" class="text-gray-600"></p>
-                </div>
-                
-                <div class="bg-indigo-50 p-4 rounded-lg mb-6">
-                    <h4 class="font-medium text-indigo-800 mb-2">Ключевые моменты для апелляции:</h4>
-                    <ul id="key-points" class="list-disc pl-5 space-y-1 text-gray-700">
-                        <!-- Dynamically filled -->
-                    </ul>
-                </div>
-                
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h4 class="font-medium text-gray-800 mb-2">Рекомендации:</h4>
-                    <p id="recommendations" class="text-gray-700"></p>
-                </div>
-                
-                <button class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
-                    Сохранить полный отчет
-                </button>
-                <button class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
-                    Составить аппеляционную жалобу
-                </button>
-            </div>
-        </div>
+<!-- Контейнер для отображения результатов анализа -->
+<div id="analysisResult" class="result-container" style="display: none;">
+  <div class="result-header">
+    <div>
+      <h3 id="resultTitle">Результаты анализа</h3>
+      <p id="resultSubtitle" class="text-muted"></p>
     </div>
+    <div>
+      <span id="probabilityBadge" class="probability-badge">0%</span>
+    </div>
+  </div>
+  
+  <div id="partialResult">
+    <p>На основе анализа судебного решения мы оценили вероятность успешной апелляции. Для получения полных рекомендаций необходимо оплатить услугу.</p>
+    
+    <div class="paywall">
+      <h4>Получите полный анализ с рекомендациями</h4>
+      <p>Полный анализ включает:</p>
+      <ul style="text-align: left; display: inline-block;">
+        <li>Детальный разбор ключевых моментов для апелляции</li>
+        <li>Конкретные рекомендации по подготовке апелляции</li>
+        <li>Ссылки на релевантную судебную практику</li>
+      </ul>
+      <button id="paymentButton" class="payment-button">Получить полный анализ за 999 ₽</button>
+    </div>
+  </div>
+  
+  <div id="fullResult" style="display: none;">
+    <div class="result-section">
+      <h4>Ключевые моменты для апелляции</h4>
+      <div id="keyPointsList"></div>
+    </div>
+    
+    <div class="result-section">
+      <h4>Рекомендации</h4>
+      <div id="recommendations"></div>
+    </div>
+  </div>
+</div>
 
         <!-- FAQ Section -->
         <section id="faq" class="py-16 bg-gray-50 section">
