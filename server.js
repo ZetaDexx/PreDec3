@@ -9,6 +9,7 @@ const ajv = new Ajv();
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
 const axios = require('axios');
 const crypto = require('crypto');
@@ -21,8 +22,15 @@ app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
 
+// Настройка CSRF-защиты
+const csrfProtection = csrf({ 
+  cookie: true, // Хранение токена в куки
+  sameSite: 'strict', // Защита от CSRF-атак
+});
+app.use(csrfProtection);
+
 // Настройки Точка банк
-const TOCHKA_API_URL = 'https://enter.tochka.com/api/v2 ';
+const TOCHKA_API_URL = 'https://enter.tochka.com/api/v2';
 const TOCHKA_CLIENT_ID = process.env.TOCHKA_CLIENT_ID;
 const TOCHKA_CLIENT_SECRET = process.env.TOCHKA_CLIENT_SECRET;
 const TOCHKA_REDIRECT_URI = process.env.TOCHKA_REDIRECT_URI;
@@ -50,6 +58,10 @@ async function processFile(filePath, ext) {
     throw new Error(`Ошибка обработки файла: ${err.message}`);
   }
 }
+
+app.get('/api/csrf-token', (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
 
 app.post('/analyze', upload.single('file'), async (req, res) => {
   let rawContent = '';
@@ -169,13 +181,16 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
     if (!validate(result)) {
       throw new Error(`Некорректная схема: ${JSON.stringify(validate.errors)}`);
     }
-
+    
+  if (!result || !result.probability) {
+  throw new Error('Некорректный формат ответа от ИИ');
+}
     // Валидация по схеме
     if (!result.probability || result.probability < 0 || result.probability > 100) {
       throw new Error('Некорректное значение вероятности');
     }
      const sessionId = crypto.randomBytes(16).toString('hex');
-    analysisSessions.set(sessionId, fullResult);
+    analysisSessions.set(sessionId, Result);
     
     // Формируем частичный результат для бесплатного отображения
     const limitedResult = {
@@ -232,7 +247,6 @@ app.post('/create-payment', async (req, res) => {
     if (!sessionId || !analysisSessions.has(sessionId)) {
       return res.status(400).json({ error: 'Некорректная сессия анализа' });
     }
-    
     const paymentId = crypto.randomBytes(8).toString('hex');
     const accessToken = await getTochkaAccessToken();
     
