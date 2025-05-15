@@ -316,7 +316,6 @@ app.get('/full-analysis/:sessionId', (req, res) => {
 // Маршрут для обработки колбэка после оплаты
 app.get('/payment-callback', async (req, res) => {
   const { sessionId, paymentId } = req.query;
-  const { sessionId, paymentId } = req.query;
   const secret = req.cookies.csrfSecret;
   const token = req.query._csrf;
 
