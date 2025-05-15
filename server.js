@@ -9,7 +9,7 @@ const ajv = new Ajv();
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const csrf = require('csurf');
+const { createToken, createSecret, isTokenValid } = require('csrf');
 const cookieParser = require('cookie-parser');
 const axios = require('axios');
 const crypto = require('crypto');
@@ -22,12 +22,12 @@ app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
 
-// Настройка CSRF-защиты
-const csrfProtection = csrf({ 
-  cookie: true, // Хранение токена в куки
-  sameSite: 'strict', // Защита от CSRF-атак
-});
-app.use(csrfProtection);
+                                                // Настройка CSRF-защиты
+                                                const csrfProtection = csrf({ 
+                                                  cookie: true, // Хранение токена в куки
+                                                  sameSite: 'strict', // Защита от CSRF-атак
+                                                });
+                                                app.use(csrfProtection);
 
 // Настройки Точка банк
 const TOCHKA_API_URL = 'https://enter.tochka.com/api/v2';
@@ -60,10 +60,20 @@ async function processFile(filePath, ext) {
 }
 
 app.get('/api/csrf-token', (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
+  const secret = createSecret(); // Generate a secret
+  const token = createToken(secret); // Generate token from secret
+  res.cookie('csrfSecret', secret, { httpOnly: true, secure: true }); // Store secret in cookie
+  res.json({ csrfToken: token }); // Send token to client
 });
 
 app.post('/analyze', upload.single('file'), async (req, res) => {
+  const { token } = req.body;
+  const secret = req.cookies.csrfSecret;
+
+  if (!isTokenValid(token, secret)) {
+    return res.status(403).json({ error: 'CSRF-атака' });
+  }
+  
   let rawContent = '';
   try {
     console.log('Получен файл:', req.file);
@@ -243,7 +253,16 @@ async function getTochkaAccessToken() {
 app.post('/create-payment', async (req, res) => {
   try {
     const { sessionId } = req.body;
-    
+    const secret = req.cookies.csrfSecret;
+    const token = req.body._csrf;
+
+  if (!isTokenValid(token, secret)) {
+    return res.status(403).json({ error: 'CSRF-атака' });
+  }
+
+  if (!sessionId || !analysisSessions.has(sessionId)) {
+    return res.status(400).json({ error: 'Некорректная сессия' });
+  }
     if (!sessionId || !analysisSessions.has(sessionId)) {
       return res.status(400).json({ error: 'Некорректная сессия анализа' });
     }
@@ -297,7 +316,13 @@ app.get('/full-analysis/:sessionId', (req, res) => {
 // Маршрут для обработки колбэка после оплаты
 app.get('/payment-callback', async (req, res) => {
   const { sessionId, paymentId } = req.query;
-  
+  const { sessionId, paymentId } = req.query;
+  const secret = req.cookies.csrfSecret;
+  const token = req.query._csrf;
+
+  if (!isTokenValid(token, secret)) {
+    return res.status(403).json({ error: 'CSRF-атака' });
+  }
   if (!sessionId || !analysisSessions.has(sessionId)) {
     return res.status(400).json({ error: 'Некорректная сессия' });
   }
