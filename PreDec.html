@@ -89,6 +89,13 @@
 			z-index: 9999;
 		}
 
+		@media (max-width: 640px) {
+		    #pay-button {
+		        font-size: 14px;
+		        padding: 10px 16px;
+		    }
+		}
+	    
 		@media (max-width: 767px) {
 			#cookie-consent {
 				font-size: 0.875rem;
@@ -382,9 +389,9 @@
 
 	    <div id="payment-required" class="hidden">
     <p class="text-red-500 mb-4">Для просмотра полного результата требуется оплата.</p>
-    <a href="#" id="pay-button" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
-        Оплатить 490 руб.
-    </a>
+    <a href="#" id="pay-button" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 transform hover:scale-105">
+    Оплатить 490 руб.
+	</a>
 </div>
 		<div id="results-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
 		<div class="bg-white rounded-xl p-8 w-full max-w-md mx-4">
@@ -712,19 +719,28 @@
             // Добавляем обработчик на кнопку оплаты
             document.getElementById('pay-button').addEventListener('click', async (e) => {
                 e.preventDefault();
-                
+		    
+		document.getElementById('pay-button').addEventListener('click', () => {
+		    gtag('event', 'payment_click', {
+		        'event_category': 'Monetization',
+		        'event_label': 'Tochka.com'
+		    });
+		});
+		    
                 // Получаем платежную ссылку
-                const paymentResponse = await fetch('/create-payment', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ sessionId: data.sessionId })
-                });
+                const paymentResponse = awaitfetch('/create-payment', {
+		    method: 'POST',
+		    headers: {
+		        'Content-Type': 'application/json',
+		        'X-CSRF-Token': csrfToken // Получите токен через /api/csrf-token
+		    },
+		    body: JSON.stringify({ sessionId: data.sessionId })
+		});
 
                 const paymentData = await paymentResponse.json();
                 if (paymentData.paymentUrl) {
-                    window.location.href = paymentData.paymentUrl;
+                    	const confirmation = await fetch('/full-analysis/' + data.sessionId);
+			const fullResult = await confirmation.json();
                 }
             });
         }
